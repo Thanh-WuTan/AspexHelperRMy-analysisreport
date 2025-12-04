@@ -4,12 +4,15 @@
 
 ------------------------------------------------------------------------
 
+height 2pt
 
 **AspexHelperRMy**
 
 *A PlugX Variant*
 
 ------------------------------------------------------------------------
+
+height 2pt
 
 <div class="minipage">
 
@@ -63,38 +66,37 @@ The malware sample consists of the following files:
 | **File Name:**    | aspex_helper.exe             |
 | **Size (bytes):** | 5,131,712                    |
 | **Type:**         | Application (.exe)           |
-| **SHA-256:**      |                              |
+| **SHA-256:**      | ff2ba3ae5fb195918ffaa542055e800ffb34815645d39377561a3abdfdea2239                             |
 |                   |                              |
 | **File Name:**    | aspex_log.dat                |
 | **Size (bytes):** | 472,064                      |
 | **Type:**         | DAT file                     |
-| **SHA-256:**      |                              |
+| **SHA-256:**      | bc8091166abc1f792b895e95bf377adc542828eac934108250391dabf3f57df9                             |
 |                   |                              |
 | **File Name:**    | RBGUIFramework.dll           |
 | **Size (bytes):** | 130,048                      |
 | **Type:**         | Application Extension (.dll) |
-| **SHA-256:**      |                              |
+| **SHA-256:**      | 9f57f0df4e047b126b40f88fdbfdba7ced9c30ad512bfcd1c163ae28815530a6                             |
 
 Summary of Analyzed File Artifacts
 
 </div>
 
-### Overview of the Loading Chain
+### Process Flow of the Loading Chain
 
-Together, these files form a multi-stage loader sequence designed to
-deploy a memory-resident PlugX payload. The signed executable acts as a
-decoy loader, the DLL is side-loaded to decrypt the `.data` file, and
-the decrypted content contains a reflective loader that executes the
-final payload entirely in memory. This fileless approach significantly
-reduces forensic artifacts on disk and complicates detection.
+The loading sequence progresses through the following four stages:
 
-The following diagram summarizes the process flow of the sample:
+1.  **Stage 1: `aspex_helper.exe` (Signed Loader)**
+    The initial execution begins with a legitimate, digitally signed executable acting as a decoy.
 
-<figure data-latex-placement="H">
+2.  **Stage 2: `RBGUIFramework.dll` (Side-Loaded DLL)**
+    The signed executable loads this malicious DLL via DLL side-loading.
 
-<figcaption>Simplified 4-Stage Process Flow of AspesHelperRMy (PlugX
-Variant)</figcaption>
-</figure>
+3.  **Stage 3: `aspex_log.dat` (Decrypted Payload)**
+    The DLL locates and decrypts this file, which contains the shellcode.
+
+4.  **Stage 4: Final Payload (Reflective-Loaded DLL)**
+    The shellcode reflectively loads the final PlugX variant entirely in memory.
 
 This report provides a brief overview of the loading chain and focuses
 primarily on the final decrypted PlugX payload and its behavior once
@@ -262,8 +264,14 @@ execution of the final PlugX stage.
 
 The malware’s execution logic is highly dependent on the number of command‑line arguments passed during initialization. Upon execution, the payload processes these arguments to select distinct execution paths—ranging from persistence setup and privilege elevation to process injection—before ultimately converging into its primary operational routine.
 
-The specific behaviors triggered by different argument counts (Argc) are detailed below:
+<div class="landscape">
 
+<figure data-latex-placement="H">
+
+<figcaption>Final Payload’s control flow overview</figcaption>
+</figure>
+
+</div>
 
 <span id="tab:arg_logic" label="tab:arg_logic"></span>
 
@@ -758,8 +766,8 @@ terminate the process tree using the Windows Command Processor:
 </div>
 
 In addition to the command-line approach, it also directly invokes the
-native Windows API `TerminateProcess(hproc, 0)` on the target process
-handle.
+native Windows API  
+`TerminateProcess(hproc, 0)` on the target process handle.
 
 The blocklist targets a mix of USB-focused security tools (e.g.,
 Smadav), standard antivirus solutions (e.g., Avast, Symantec), and

@@ -206,7 +206,7 @@ The malware sample consists of the following files:
 
 \subsection{Overview of the Loading Chain}
 
-Together, these files form a multi-stage loader sequence designed to deploy a memory-resident PlugX payload. The signed executable acts as a decoy loader, the DLL is side-loaded to decrypt the \texttt{.data} file, and the decrypted content contains a reflective loader that executes the final payload entirely in memory. This fileless approach significantly reduces forensic artifacts on disk and complicates detection.
+Together, these files form a multi-stage loader sequence designed to deploy a memory-resident PlugX payload. The signed executable acts as a decoy loader, the DLL is side-loaded to decrypt the \texttt{.dat} file, and the decrypted content contains a reflective loader that executes the final payload entirely in memory. This fileless approach significantly reduces forensic artifacts on disk and complicates detection.
 
 The following diagram summarizes the process flow of the sample:
 \begin{figure}[H]
@@ -883,7 +883,7 @@ If a match is found, the malware employs a dual-method approach to ensure the ta
     \texttt{C:\textbackslash Windows\textbackslash system32\textbackslash cmd.exe /c taskkill /t /f /pid \%d}
 \end{center}
 
-In addition to the command-line approach, it also directly invokes the native Windows API \texttt{TerminateProcess(hproc, 0)} on the target process handle.
+In addition to the command-line approach, it also directly invokes the native Windows API \\ \texttt{TerminateProcess(hproc, 0)} on the target process handle.
 
 The blocklist targets a mix of USB-focused security tools (e.g., Smadav), standard antivirus solutions (e.g., Avast, Symantec), and potentially other malware or system utilities. The full list of targeted processes is detailed below:
 
