@@ -1014,7 +1014,7 @@ This combination of per-device markers, host-level tracking, and a global policy
 
 
 \paragraph{Payload Staging and Persistence} \mbox{}\\
-Upon successful detection of a removable drive, the malware initiates a multi-stage process to establish a hidden staging ground and synchronize its payload components.
+The malware initiates a multi-stage process to establish a hidden staging ground and synchronize its payload components.
 
 The malware first ensures the existence of its installation directories:\\ \texttt{E:\textbackslash Firmware\textbackslash} and \texttt{E:\textbackslash Firmware\textbackslash vault\textbackslash}. To evade casual detection by users, it immediately modifies the file attributes of these directories using the API \texttt{SetFileAttributesW}.
 
@@ -1115,7 +1115,7 @@ If an active internet connection is detected, the malware initializes a director
     \texttt{[USB]:\textbackslash Information Volume\textbackslash 2\textbackslash}
 \end{center}
 
-The malware subsequently attempts to copy all files and folders from the host directory \\ \texttt{\%userprofile\%\textbackslash AspexHelperRMy\textbackslash} to this new location on the USB drive. 
+The malware subsequently attempts to copy its payloads from the host directory \\ \texttt{\%userprofile\%\textbackslash AspexHelperRMy\textbackslash} to this new location on the USB drive. 
 
 \paragraph{WiFi Profile Synchronization}\mbox{}\\
 The malware executes a conditional synchronization routine for WiFi configuration profiles (\texttt{.xml} files). The direction of data flow is determined by the infected host's internet connectivity status:
@@ -1184,7 +1184,7 @@ The created shortcut is crafted to execute the malware payload while tricking th
 \textbf{Technical Details:}
 \begin{itemize}
     \item \textbf{Obfuscation:} The caret symbols (\texttt{\^{}}) are used to break string-based detection signatures (e.g., \texttt{\^{}Firmwa\^{}re} resolves to \texttt{Firmware}).
-    \item \textbf{Execution Logic:} The malware is launched with two random arguments (\texttt{rand1 rand2}). This ensures the application starts with \texttt{argc = 3}, likely a check used by the malware to distinguish between a user-click execution and a system-startup execution.
+    \item \textbf{Execution Logic:} The malware is launched with two random arguments (\texttt{rand1 rand2}). This ensures the application starts with \texttt{argc = 3}.
 \end{itemize}
 
 \begin{figure}[H]
@@ -1492,11 +1492,12 @@ Decoding these strings confirms the mapping to the original user files.
 
 \subsubsection{Thread 3: Offline Batch Script Execution}
 
-The third worker thread functions as a fallback command channel. Before executing its payload logic, the thread validates the host's proxy configuration by querying the registry value:
+The third worker thread functions as a fallback command channel. Before executing its payload logic, the thread attempts to validate an internal condition by querying the registry value:
 \begin{center}
     \texttt{HKCU\textbackslash System\textbackslash CurrentControlSet\textbackslash Control\textbackslash Network\textbackslash proxy}
 \end{center}
-The thread proceeds only if this value is \textbf{not} explicitly set to "1".
+
+Analyst Note: This is not a standard Windows registry key for proxy configurations. It appears to be a malware-defined artifact—likely a flag set by the attacker or a previous infection stage—used to conditionally enable or disable this specific thread's execution (a custom "kill-switch"). The thread proceeds only if this value is not set to "1".
 
 Upon passing this check, the malware scans the USB target directory \texttt{[Drive]:\textbackslash Information Volume\textbackslash 2\textbackslash p\textbackslash} for batch files (\texttt{.bat}).
 
@@ -1563,7 +1564,7 @@ If the network is found, the malware executes a sequence of three commands to fo
 %comspec% /c netsh wlan add profile filename="[Path_To_Profile.xml]"
 
 :: 3. Initiate the connection
-%comspec% /c netsh wlan connect name="[SSID]"
+%comspec% /c netsh wlan connect name="[Profile_Name]"
 \end{verbatim}
 
 

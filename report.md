@@ -954,9 +954,7 @@ stealthy, and honors remote operator constraints.
 ##### Payload Staging and Persistence
 
   
-Upon successful detection of a removable drive, the malware initiates a
-multi-stage process to establish a hidden staging ground and synchronize
-its payload components.
+The malware initiates a multi-stage process to establish a hidden staging ground and synchronize its payload components.
 
 The malware first ensures the existence of its installation
 directories:  
@@ -1104,7 +1102,7 @@ in the target path:
 
 </div>
 
-The malware subsequently attempts to copy all files and folders from the
+The malware subsequently attempts to copy its payloads from the
 host directory  
 `%userprofile%\AspexHelperRMy\` to this new location on the USB drive.
 
@@ -1197,9 +1195,7 @@ Processor (`cmd.exe`) with specific arguments:
   `Firmware`).
 
 - **Execution Logic:** The malware is launched with two random arguments
-  (`rand1 rand2`). This ensures the application starts with `argc = 3`,
-  likely a check used by the malware to distinguish between a user-click
-  execution and a system-startup execution.
+  (`rand1 rand2`). This ensures the application starts with `argc = 3`.
 
 <figure id="fig:maliciousshortcut" data-latex-placement="H">
 <img src="images/maliciousshortcut.png" style="width:60.0%" />
@@ -1609,9 +1605,7 @@ filename.</figcaption>
 
 #### Thread 3: Offline Batch Script Execution
 
-The third worker thread functions as a fallback command channel. Before
-executing its payload logic, the thread validates the host’s proxy
-configuration by querying the registry value:
+The third worker thread functions as a fallback command channel. Before executing its payload logic, the thread attempts to validate an internal condition by querying the registry value:
 
 <div class="center">
 
@@ -1619,7 +1613,7 @@ configuration by querying the registry value:
 
 </div>
 
-The thread proceeds only if this value is **not** explicitly set to "1".
+Analyst Note: This is not a standard Windows registry key for proxy configurations. It appears to be a malware-defined artifact—likely a flag set by the attacker or a previous infection stage—used to conditionally enable or disable this specific thread's execution (a custom "kill-switch"). The thread proceeds only if this value is not set to "1".
 
 Upon passing this check, the malware scans the USB target directory
 `[Drive]:\Information Volume\2\p\` for batch files (`.bat`).
@@ -1711,7 +1705,7 @@ stolen credentials:
     %comspec% /c netsh wlan add profile filename="[Path_To_Profile.xml]"
 
     :: 3. Initiate the connection
-    %comspec% /c netsh wlan connect name="[SSID]"
+    %comspec% /c netsh wlan connect name="[Profile_Name]"
 
 #### Command and Control (C2) Communication
 
@@ -1871,7 +1865,7 @@ Key</strong></th>
 <tr>
 <td style="text-align: center;">{1}</td>
 <td style="text-align: left;"><strong>IE Version</strong><br />
-Derived from:<br />
+Derived from:<br /> HKEY\_LOCAL\_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Version Vector\IE
 <br />
 (Defaults to ’8.00’ if not found).</td>
 </tr>
@@ -1889,27 +1883,31 @@ host.</td>
 <td style="text-align: center;">{4}</td>
 <td style="text-align: left;"><strong>System Post Platform
 (5.0)</strong><br />
-Concatenated values from:<br />
+Concatenated values from: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\InternetSe
+ttings\5.0\UserAgent\PostPlatform<br />
 </td>
 </tr>
 <tr>
 <td style="text-align: center;">{5}</td>
 <td style="text-align: left;"><strong>Machine Post
 Platform</strong><br />
-Concatenated values from:<br />
+Concatenated values from: HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\InternetSe
+ttings\UserAgent\PostPlatform<br />
 </td>
 </tr>
 <tr>
 <td style="text-align: center;">{6}</td>
 <td style="text-align: left;"><strong>User Post Platform
 (5.0)</strong><br />
-Concatenated values from:<br />
+Concatenated values from: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\InternetSettings
+\5.0\UserAgent\PostPlatform<br />
 </td>
 </tr>
 <tr>
 <td style="text-align: center;">{7}</td>
 <td style="text-align: left;"><strong>User Post Platform</strong><br />
-Concatenated values from:<br />
+Concatenated values from: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\InternetSettings
+\UserAgent\PostPlatform<br />
 </td>
 </tr>
 </tbody>
@@ -2517,19 +2515,19 @@ security environments.
 <td style="text-align: left;"><strong>Loader (Signed)</strong></td>
 <td style="text-align: left;"><strong>Filename:</strong>
 aspex_helper.exe<br />
-<strong>SHA256:</strong></td>
+<strong>SHA256: ff2ba3ae5fb195918ffaa542055e800ffb34815645d39377561a3abdfdea2239</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Encrypted Payload</strong></td>
 <td style="text-align: left;"><strong>Filename:</strong>
 aspex_log.dat<br />
-<strong>SHA256:</strong></td>
+<strong>SHA256: bc8091166abc1f792b895e95bf377adc542828eac934108250391dabf3f57df9</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Side-Loaded DLL</strong></td>
 <td style="text-align: left;"><strong>Filename:</strong>
 RBGUIFramework.dll<br />
-<strong>SHA256:</strong></td>
+<strong>SHA256: 9f57f0df4e047b126b40f88fdbfdba7ced9c30ad512bfcd1c163ae28815530a6</strong></td>
 </tr>
 </tbody>
 </table>
@@ -2622,37 +2620,37 @@ Purpose</strong></th>
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>Victim Fingerprint</strong></td>
-<td style="text-align: left;"><strong>Key:</strong><br />
-<strong>Key:</strong><br />
+<td style="text-align: left;"><strong>Key: </strong>HKEY_LOCAL_MACHINE\Software\CLASSES\ms-pu\CLSID<br />
+<strong>Key: </strong>HKEY_CURRENT_USER\Software\CLASSES\ms-pu\CLSID<br />
 <strong>Format:</strong> 16-byte Hex string (e.g.,
 <code>%2.2X...</code>)</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Persistence (Run)</strong></td>
-<td style="text-align: left;"><strong>Key:</strong><br />
+<td style="text-align: left;"><strong>Key: </strong>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run<br />
 <strong>Value Name:</strong> <code>Aspex Update</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>UAC Bypass</strong></td>
-<td style="text-align: left;"><strong>Key:</strong><br />
+<td style="text-align: left;"><strong>Key: </strong>HKEY_CURRENT_USER\Software\Classes\ms-settings\CurVer<br />
 <strong>Value:</strong> <code>.pow</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>UAC Command</strong></td>
-<td style="text-align: left;"><strong>Key:</strong><br />
+<td style="text-align: left;"><strong>Key: </strong>HKEY_CURRENT_USER\Software\Classes\.pow\Shell\Open\command<br />
 <strong>Value:</strong> Path to malicious executable with
 arguments.</td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Explorer Tampering</strong></td>
-<td style="text-align: left;"><strong>Key:</strong><br />
+<td style="text-align: left;"><strong>Key:</strong>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced<br />
 <strong>Values:</strong> <code>Hidden=0</code>,
 <code>ShowSuperHidden=0</code>, <code>HideFileExt=1</code></td>
 </tr>
 <tr>
 <td style="text-align: left;"><strong>Network Proxy
 Settings</strong></td>
-<td style="text-align: left;"><strong>Key (Base):</strong><br />
+<td style="text-align: left;"><strong>Key (Base): </strong>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\InternetSettings<br />
 <strong>Value (Enable):</strong> Reads <code>ProxyEnable</code> to check
 if a proxy is active (<span
 class="math inline">1 = active</span>).<br />
@@ -2662,7 +2660,7 @@ retrieve the proxy address and port.</td>
 <tr>
 <td style="text-align: left;"><strong>USB/C2 Policy
 Control</strong></td>
-<td style="text-align: left;"><strong>Key (Base):</strong><br />
+<td style="text-align: left;"><strong>Key (Base): </strong>HKEY_CURRENT_USER\System\CurrentControlSet\Control\Network\<br />
 <strong>Value (Fingerprint):</strong> Reads/Writes USB device IDs to
 prevent re-infection.<br />
 <strong>Value (Proxy Check/Skip):</strong> Reads <code>proxy</code> to
